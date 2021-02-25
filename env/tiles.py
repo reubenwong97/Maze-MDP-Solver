@@ -5,19 +5,6 @@ COLORS = {
     "grey": (153, 153, 153)
 }
 
-class TileFactory(object):
-    def create_tile(self, map_value: int, location: tuple):
-        if map_value == 0:
-            return WhiteTile(map_value, location)
-        elif map_value == 1:
-            return GreyTile(map_value, location)
-        elif map_value == 2:
-            return GreenTile(map_value, location)
-        elif map_value == 3:
-            return OrangeTile(map_value, location)
-        else:
-            raise ValueError("Values in map restricted to 0, 1, 2 or 3 only")
-
 class Tile(object):
     def __init__(self, map_value:int, location: tuple):
         self.map_value = map_value
@@ -62,3 +49,16 @@ class OrangeTile(Tile):
         self.color = COLORS["orange"]
         self.passable = True
         self.reward = -1
+
+class TileFactory(object):
+    def create_tile(self, map_value: int, location: tuple) -> Tile:
+        if map_value == 0:
+            return WhiteTile(map_value, location)
+        elif map_value == 1:
+            return GreyTile(map_value, location)
+        elif map_value == 2:
+            return GreenTile(map_value, location)
+        elif map_value == 3:
+            return OrangeTile(map_value, location)
+        else:
+            raise ValueError("Values in map restricted to 0, 1, 2 or 3 only")
