@@ -11,8 +11,11 @@ class Maze(object):
         self.factory = TileFactory()
         self._build_maze()
 
-    def is_out_of_bounds(self):
-        raise NotImplementedError
+    def is_out_of_bounds(self, location):
+        i, j = location[0], location[1]
+        if i < 0 or i >= self.shape[0] or j < 0 or j >= self.shape[1]:
+            return True
+        return False
 
     def _build_maze(self):
         self.maze = np.zeros(self.shape, dtype=object)
