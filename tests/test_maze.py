@@ -46,3 +46,16 @@ def test_bounds_checking():
     assert maze.is_out_of_bounds(loc_4) == True
     assert maze.is_out_of_bounds(loc_5) == True
     assert maze.is_out_of_bounds(loc_6) == False
+
+def test_action_checker():
+    '''Test if action checker is working'''
+    maze = Maze(None)
+    location = [0, 0]
+    action_1 = 'Down'
+    action_2 = 'Up'
+    action_3 = 'Right'
+
+    assert maze.action_viable(action_1, location) == True
+    assert maze.action_viable(action_2, location) == False
+    assert maze.action_viable(action_3, location) == False
+    

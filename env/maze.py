@@ -9,6 +9,7 @@ class Maze(object):
         self.maze_template = np.genfromtxt(self.maze_path, delimiter=',', dtype=np.uint8)
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
+        self.actions = {"Up": 0, "Down": 1, "Left": 2, "Right": 3}
         self._build_maze()
 
     def is_out_of_bounds(self, location):
@@ -22,3 +23,28 @@ class Maze(object):
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
                 self.maze[i, j] = self.factory.create_tile(map_value=self.maze_template[i, j], location=(i, j))
+
+    def get_possible_actions(self, location):
+        '''How should I name it, because even if its not possible, do I include in calculations? Think more'''
+        raise NotImplementedError
+
+    def action_viable(self, action, location):
+        i, j = location
+        if action == 'Up':
+            candidate_location = (i - 1, j)
+        elif action == 'Down':
+            candidate_location = (i + 1, j)
+        elif action == 'Left':
+            candidate_location = (i, j - 1)
+        elif action == 'Right':
+            candidate_location = (i, j + 1)
+        else:
+            raise ValueError('Unrecognised action given')
+
+        if self.is_out_of_bounds(candidate_location):
+            return False 
+        tile = self.maze[candidate_location]
+        if not tile.passable:
+            return False
+
+        return True
