@@ -43,8 +43,12 @@ class Maze(object):
         tile = self.maze[location]
         return tile.learnable
 
+    def transitions(self, location, action):
+        raise NotImplementedError
+
     def get_new_state(self, action, location):
         #! Maybe all I need is this?
+        #! Again, all I need is probabilities, not my end state?
         i, j = location
         if action == 'Up':
             candidate_location = (i - 1, j)
