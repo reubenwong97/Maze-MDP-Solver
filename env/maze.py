@@ -9,7 +9,10 @@ class Maze(object):
         self.maze_template = np.genfromtxt(self.maze_path, delimiter=',', dtype=np.uint8)
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
-        self.actions = {"Up": 0, "Down": 1, "Left": 2, "Right": 3}
+        self.actions = ["Up", "Down", "Left", "Right"]
+        self.action_orthogonals = {"Up": ["Left", "Right"], "Down": ["Left", "Right"],
+            "Left": ["Up", "Down"], "Right": ["Up", "Down"]
+        }
         self._build_maze()
 
     def is_out_of_bounds(self, location):
@@ -24,15 +27,24 @@ class Maze(object):
             for j in range(self.shape[1]):
                 self.maze[i, j] = self.factory.create_tile(map_value=self.maze_template[i, j], location=(i, j))
 
-    def get_possible_actions(self, location):
-        '''How should I name it, because even if its not possible, do I include in calculations? Think more'''
-        raise NotImplementedError
+    def model(self, location, action):
+        #! Do I even need this if I am not interacting with environment
+        '''Transition model'''
+        #! Yea this samples, highly likely I dont want this
+        if np.random.random() < 0.8:
+            action = action
+        else:
+            action = np.random.choice(self.action_orthogonals[action])
+
+        next_state = self.get_new_state(action, location)
+        return next_state
 
     def is_learnable_state(self, location):
         tile = self.maze[location]
         return tile.learnable
 
-    def action_viable(self, action, location):
+    def get_new_state(self, action, location):
+        #! Maybe all I need is this?
         i, j = location
         if action == 'Up':
             candidate_location = (i - 1, j)
@@ -45,10 +57,12 @@ class Maze(object):
         else:
             raise ValueError('Unrecognised action given')
 
+        location_valid = True
         if self.is_out_of_bounds(candidate_location):
-            return False 
+            location_valid = False
         tile = self.maze[candidate_location]
         if not tile.passable:
-            return False
+            location_valid = False
 
-        return True
+        final_location = candidate_location if location_valid else location
+        return final_location
