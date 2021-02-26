@@ -5,6 +5,7 @@ from env.tiles import OrangeTile
 import numpy as np
 
 def test_basic_maze_loading():
+    '''Test Basic template loaded successfully'''
     maze_path = None
     maze = Maze(maze_path)
     maze_template = maze.maze_template
@@ -24,11 +25,13 @@ def test_tile_creation():
     assert isinstance(tile_map[1, 0], OrangeTile)
 
 def test_maze_building():
+    '''Tests maze building for the Basic Maze'''
     maze = Maze(maze_path=None)
 
     assert isinstance(maze.maze[0, 0], GreenTile)
 
 def test_bounds_checking():
+    '''Tests the boundaries for the Basic maze'''
     maze = Maze(maze_path=None)
     loc_1 = [-1, 7]
     loc_2 = [2, 2]
