@@ -28,6 +28,10 @@ class Maze(object):
         '''How should I name it, because even if its not possible, do I include in calculations? Think more'''
         raise NotImplementedError
 
+    def is_learnable_state(self, location):
+        tile = self.maze[location]
+        return tile.learnable
+
     def action_viable(self, action, location):
         i, j = location
         if action == 'Up':

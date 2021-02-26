@@ -58,4 +58,11 @@ def test_action_checker():
     assert maze.action_viable(action_1, location) == True
     assert maze.action_viable(action_2, location) == False
     assert maze.action_viable(action_3, location) == False
-    
+
+def test_learnability():
+    maze = Maze(None)
+    location1 = (0, 0)
+    location2 = (0, 1)
+
+    assert maze.is_learnable_state(location1) == True
+    assert maze.is_learnable_state(location2) == False 

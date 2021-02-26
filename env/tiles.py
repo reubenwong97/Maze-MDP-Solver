@@ -22,6 +22,7 @@ class WhiteTile(Tile):
         self.color = COLORS["white"]
         self.passable = True
         self.reward = 0
+        self.learnable = True
 
 class GreyTile(Tile):
     def __init__(self, map_value: int, location: tuple):
@@ -31,6 +32,7 @@ class GreyTile(Tile):
         self.color = COLORS["grey"]
         self.passable = False
         self.reward = 0
+        self.learnable = False
 
 class GreenTile(Tile):
     def __init__(self, map_value: int, location: tuple):
@@ -40,6 +42,7 @@ class GreenTile(Tile):
         self.color = COLORS["green"]
         self.passable = True
         self.reward = 1
+        self.learnable = True
 
 class OrangeTile(Tile):
     def __init__(self, map_value: int, location: tuple):
@@ -49,6 +52,7 @@ class OrangeTile(Tile):
         self.color = COLORS["orange"]
         self.passable = True
         self.reward = -1
+        self.learnable = True
 
 class TileFactory(object):
     def create_tile(self, map_value: int, location: tuple) -> Tile:
