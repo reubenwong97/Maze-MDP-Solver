@@ -3,9 +3,9 @@ import os
 from env.tiles import Tile, TileFactory
 
 class Maze(object):
-    def __init__(self, maze_path):
+    def __init__(self, maze_path='default'):
         self.default_path = os.path.join(os.getcwd(), 'env/mazes/basic.txt')
-        self.maze_path = maze_path if maze_path != None else self.default_path
+        self.maze_path = maze_path if maze_path != 'default' else self.default_path
         self.maze_template = np.genfromtxt(self.maze_path, delimiter=',', dtype=np.uint8)
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
@@ -44,11 +44,30 @@ class Maze(object):
         return tile.learnable
 
     def transitions(self, location, action):
-        raise NotImplementedError
+        '''return next locations and probabilities'''
+        # next state and probability if movement corresponds to selected action
+        transitions = []
+        majority_location = self.get_new_state(action, location)
+        majority_probability = 0.8
+        majority_transition = [majority_location, majority_probability]
+        transitions.append(majority_transition)
+
+        # transitions if movement is orthogonal to selected action
+        minority_probability = 0.1
+        orthogonal_actions = self.action_orthogonals[action]
+        ortho_action_1 = orthogonal_actions[0]
+        minority_location_1 = self.get_new_state(ortho_action_1, location)
+        transitions.append([minority_location_1, minority_probability])
+        ortho_action_2 = orthogonal_actions[1]
+        minority_location_2 = self.get_new_state(ortho_action_2, location)
+        transitions.append([minority_location_2, minority_probability])
+
+        # see warning: https://numpy.org/doc/1.19/release/1.19.0-notes.html#deprecate-automatic-dtype-object-for-ragged-input
+        # dtype must be specified to avoid warning
+        return np.array(transitions, dtype=object)
 
     def get_new_state(self, action, location):
-        #! Maybe all I need is this?
-        #! Again, all I need is probabilities, not my end state?
+        'Return next state given a confirmed movement (after going through sampled probabilities)'
         i, j = location
         if action == 'Up':
             candidate_location = (i - 1, j)

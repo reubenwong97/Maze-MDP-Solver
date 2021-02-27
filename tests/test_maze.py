@@ -6,7 +6,7 @@ import numpy as np
 
 def test_basic_maze_loading():
     '''Test Basic template loaded successfully'''
-    maze_path = None
+    maze_path = 'default'
     maze = Maze(maze_path)
     maze_template = maze.maze_template
 
@@ -26,13 +26,13 @@ def test_tile_creation():
 
 def test_maze_building():
     '''Tests maze building for the Basic Maze'''
-    maze = Maze(maze_path=None)
+    maze = Maze(maze_path='default')
 
     assert isinstance(maze.maze[0, 0], GreenTile)
 
 def test_bounds_checking():
     '''Tests the boundaries for the Basic maze'''
-    maze = Maze(maze_path=None)
+    maze = Maze(maze_path='default')
     loc_1 = [-1, 7]
     loc_2 = [2, 2]
     loc_3 = [-5, 0]
@@ -49,7 +49,7 @@ def test_bounds_checking():
 
 def test_state_provider():
     '''Test if correct state is returned is working'''
-    maze = Maze(None)
+    maze = Maze('default')
     location = (0, 0)
     action_1 = 'Down'
     action_2 = 'Up'
@@ -60,9 +60,27 @@ def test_state_provider():
     assert maze.get_new_state(action_3, location) == (0, 0)
 
 def test_learnability():
-    maze = Maze(None)
+    maze = Maze('default')
     location1 = (0, 0)
     location2 = (0, 1)
 
     assert maze.is_learnable_state(location1) == True
     assert maze.is_learnable_state(location2) == False 
+
+def test_transitions():
+    maze = Maze('default')
+    location = (0, 0)
+    action_1 = 'Down'
+    action_2 = 'Up'
+
+    transition_1 = np.array([[(1, 0), 0.8],
+                             [(0, 0), 0.1],
+                             [(0, 0), 0.1]], dtype=object)
+
+    transition_2 = np.array([[(0, 0), 0.8],
+                             [(0, 0), 0.1],
+                             [(0, 0), 0.1]], dtype=object)
+
+    assert np.all(maze.transitions(location, action_1) == transition_1)
+    assert np.all(maze.transitions(location, action_2) == transition_2)
+    
