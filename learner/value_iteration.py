@@ -11,7 +11,7 @@ class ValueIterationLearner(object):
         self.pi = np.ones((np.prod(self.env.shape), self.env.n_actions)) / self.env.n_actions
 
     def _to_state(self, location):
-        return location[0] + location[1]
+        return location[0] * self.env.shape[0] + location[1]
 
     def _to_location(self, state):
         row = state // self.env.shape[0]
@@ -39,13 +39,11 @@ class ValueIterationLearner(object):
                 for j in range(self.env.shape[1]):
                     tile = self.env.maze[i, j]
                     location = tile.location
-                    s = self._to_state(location)
-                    print('Values of i, j:', i, j)
-                    print('At location:', location)
-                    print('Updating state:', s)
-                    v = self.V[s]
-                    self.bellman_optimality_update(s, gamma)
-                    delta = max(delta, abs(v - self.V[s]))
+                    if tile.learnable:
+                        s = self._to_state(location)
+                        v = self.V[s]
+                        self.bellman_optimality_update(s, gamma)
+                        delta = max(delta, abs(v - self.V[s]))
             if delta < theta:
                 break     
         for i in range(self.env.shape[0]):
