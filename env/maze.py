@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from env.tiles import Tile, TileFactory
+from env.tiles import TileFactory
 
 class Maze(object):
     def __init__(self, maze_path='default'):
@@ -10,6 +10,7 @@ class Maze(object):
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
         self.actions = ["Up", "Down", "Left", "Right"]
+        self.n_actions = len(self.actions)
         self.action_orthogonals = {"Up": ["Left", "Right"], "Down": ["Left", "Right"],
             "Left": ["Up", "Down"], "Right": ["Up", "Down"]
         }
@@ -27,10 +28,8 @@ class Maze(object):
             for j in range(self.shape[1]):
                 self.maze[i, j] = self.factory.create_tile(map_value=self.maze_template[i, j], location=(i, j))
 
-    def model(self, location, action):
-        #! Do I even need this if I am not interacting with environment
-        '''Transition model'''
-        #! Yea this samples, highly likely I dont want this
+    def sample_state(self, location, action):
+        '''For sampling next states | (s,a)'''
         if np.random.random() < 0.8:
             action = action
         else:
@@ -38,6 +37,10 @@ class Maze(object):
 
         next_state = self.get_new_state(action, location)
         return next_state
+
+    def get_reward(self, location):
+        tile = self.maze[location]
+        return tile.reward
 
     def is_learnable_state(self, location):
         tile = self.maze[location]
@@ -83,9 +86,10 @@ class Maze(object):
         location_valid = True
         if self.is_out_of_bounds(candidate_location):
             location_valid = False
-        tile = self.maze[candidate_location]
-        if not tile.passable:
-            location_valid = False
+        if location_valid:
+            tile = self.maze[candidate_location]
+            if not tile.passable:
+                location_valid = False
 
         final_location = candidate_location if location_valid else location
         return final_location

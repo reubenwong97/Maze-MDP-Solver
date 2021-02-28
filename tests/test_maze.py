@@ -2,6 +2,7 @@ from env.maze import Maze
 from env.tiles import GreenTile, TileFactory
 from env.tiles import WhiteTile
 from env.tiles import OrangeTile
+from learner.value_iteration import ValueIterationLearner
 import numpy as np
 
 def test_basic_maze_loading():
@@ -83,4 +84,10 @@ def test_transitions():
 
     assert np.all(maze.transitions(location, action_1) == transition_1)
     assert np.all(maze.transitions(location, action_2) == transition_2)
-    
+
+def test_location():
+    env = Maze('default')
+    learner = ValueIterationLearner(env)
+
+    assert learner._to_location(6) == (1, 0)
+    assert learner._to_location(9) == (1, 3)
