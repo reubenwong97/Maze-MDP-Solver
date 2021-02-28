@@ -9,12 +9,23 @@ class Maze(object):
         self.maze_template = np.genfromtxt(self.maze_path, delimiter=',', dtype=np.uint8)
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
+        # states represented [0, 1, ..., np.prod(self.shape)]
+        self.states = np.array([x for x in range(np.prod(self.shape))])
         self.actions = ["Up", "Down", "Left", "Right"]
         self.n_actions = len(self.actions)
         self.action_orthogonals = {"Up": ["Left", "Right"], "Down": ["Left", "Right"],
             "Left": ["Up", "Down"], "Right": ["Up", "Down"]
         }
         self._build_maze()
+
+    def _to_state(self, location):
+        return location[0] * self.shape[0] + location[1]
+
+    def _to_location(self, state):
+        row = state // self.shape[0]
+        col = state - row * self.shape[1]
+
+        return (row, col)
 
     def is_out_of_bounds(self, location):
         i, j = location[0], location[1]
@@ -23,10 +34,14 @@ class Maze(object):
         return False
 
     def _build_maze(self):
+        self.learnable_states = []
         self.maze = np.zeros(self.shape, dtype=object)
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
-                self.maze[i, j] = self.factory.create_tile(map_value=self.maze_template[i, j], location=(i, j))
+                new_tile = self.factory.create_tile(map_value=self.maze_template[i, j], location=(i, j))
+                self.maze[i, j] = new_tile
+                if new_tile.learnable:
+                    self.learnable_states.append(self._to_state(new_tile.location))
 
     def sample_state(self, location, action):
         '''For sampling next states | (s,a)'''
@@ -35,7 +50,7 @@ class Maze(object):
         else:
             action = np.random.choice(self.action_orthogonals[action])
 
-        next_state = self.get_new_state(action, location)
+        next_state = self.get_new_location(action, location)
         return next_state
 
     def get_reward(self, location):
@@ -46,31 +61,33 @@ class Maze(object):
         tile = self.maze[location]
         return tile.learnable
 
-    def transitions(self, location, action):
-        '''return next locations and probabilities'''
+    def transitions(self, state, action):
+        # refactored as state to cater to general conventions
+        '''return next states and probabilities'''
         # next state and probability if movement corresponds to selected action
+        location = self._to_location(state)
         transitions = []
-        majority_location = self.get_new_state(action, location)
+        majority_location = self.get_new_location(action, location)
         majority_probability = 0.8
-        majority_transition = [majority_location, majority_probability]
+        majority_transition = [self._to_state(majority_location), majority_probability]
         transitions.append(majority_transition)
 
         # transitions if movement is orthogonal to selected action
         minority_probability = 0.1
         orthogonal_actions = self.action_orthogonals[action]
         ortho_action_1 = orthogonal_actions[0]
-        minority_location_1 = self.get_new_state(ortho_action_1, location)
-        transitions.append([minority_location_1, minority_probability])
+        minority_location_1 = self.get_new_location(ortho_action_1, location)
+        transitions.append([self._to_state(minority_location_1), minority_probability])
         ortho_action_2 = orthogonal_actions[1]
-        minority_location_2 = self.get_new_state(ortho_action_2, location)
-        transitions.append([minority_location_2, minority_probability])
+        minority_location_2 = self.get_new_location(ortho_action_2, location)
+        transitions.append([self._to_state(minority_location_2), minority_probability])
 
         # see warning: https://numpy.org/doc/1.19/release/1.19.0-notes.html#deprecate-automatic-dtype-object-for-ragged-input
         # dtype must be specified to avoid warning
         return np.array(transitions, dtype=object)
 
-    def get_new_state(self, action, location):
-        'Return next state given a confirmed movement (after going through sampled probabilities)'
+    def get_new_location(self, action, location):
+        'Return next location given a confirmed movement (after going through sampled probabilities)'
         i, j = location
         if action == 'Up':
             candidate_location = (i - 1, j)

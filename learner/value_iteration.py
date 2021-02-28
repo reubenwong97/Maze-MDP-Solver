@@ -10,22 +10,13 @@ class ValueIterationLearner(object):
        # all init| 0.25| 0.25  | 0.25 | 0.25
         self.pi = np.ones((np.prod(self.env.shape), self.env.n_actions)) / self.env.n_actions
 
-    def _to_state(self, location):
-        return location[0] + location[1]
-
-    def _to_location(self, state):
-        row = state // self.env.shape[0]
-        col = state - row * self.env.shape[1]
-
-        return (row, col)
-
     def bellman_optimality_update(self, s, gamma):
         Q_values = []
-        location = self._to_location(s)
+        location = self.env._to_location(s)
         for a in self.env.actions:
             q_value = 0
-            for next_location, probability in self.env.transitions(location, a):
-                next_state = self._to_state(next_location)
+            for next_state, probability in self.env.transitions(s, a):
+                next_location = self.env._to_location(next_state)
                 reward = self.env.get_reward(next_location)
                 q_value += probability * (reward + gamma * self.V[next_state])
             Q_values.append(q_value)
@@ -33,35 +24,27 @@ class ValueIterationLearner(object):
 
     #! investigate better ways of looping through
     def value_iteration(self, gamma, theta):
+        i = 0
         while True:
+            if i % 50 == 0:
+                print('On iteration', i)
             delta = 0 # for stopping threshold theta
-            for i in range(self.env.shape[0]):
-                for j in range(self.env.shape[1]):
-                    tile = self.env.maze[i, j]
-                    location = tile.location
-                    s = self._to_state(location)
-                    print('Values of i, j:', i, j)
-                    print('At location:', location)
-                    print('Updating state:', s)
-                    v = self.V[s]
-                    self.bellman_optimality_update(s, gamma)
-                    delta = max(delta, abs(v - self.V[s]))
+            for s in self.env.learnable_states:
+                v = self.V[s]
+                self.bellman_optimality_update(s, gamma)
+                delta = max(delta, abs(v - self.V[s]))
+            i += 1
             if delta < theta:
-                break     
-        for i in range(self.env.shape[0]):
-            for j in range(self.env.shape[1]):  
-                tile = self.env.maze[i, j]
-                location = tile.location     
-                s = self._to_state(location)
-                self.q_greedify_policy(s, gamma)     
+                break
+        for s in self.env.learnable_states:
+            self.q_greedify_policy(s, gamma)    
 
     def q_greedify_policy(self, s, gamma):
         Q_values = []
-        location = self._to_location(s)
         for a in self.env.actions:
             q_value = 0
-            for next_location, probability in self.env.transitions(location, a):
-                next_state = self._to_state(next_location)
+            for next_state, probability in self.env.transitions(s, a):
+                next_location = self.env._to_location(next_state)
                 reward = self.env.get_reward(next_location)
                 q_value += probability * (reward + gamma * self.V[next_state])
             Q_values.append(q_value)

@@ -5,6 +5,6 @@ import numpy as np
 env = Maze('default')
 learner = ValueIterationLearner(env=env)
 
-learner.value_iteration(0.99, 0.01)
-
+learner.value_iteration(0.95, 0.01)
+print(learner.pi)
 print(learner.V)
