@@ -21,7 +21,7 @@ class WhiteTile(Tile):
     def _set_attributes(self):
         self.color = COLORS["white"]
         self.passable = True
-        self.reward = 0
+        self.reward = -.04
         self.learnable = True
 
 class GreyTile(Tile):
