@@ -28,14 +28,14 @@ class Learner(object):
         one_hot[np.argmax(Q_values)] = 1.0
         self.pi[s] = one_hot
 
-    def plot_value(self, annot=True, vmin='auto', cmap='YlGnBu', save_path=None):
+    def plot_value(self, annot=True, vmin='auto', cmap='YlGnBu', fmt='.2f', save_path=None):
         V_shaped = deepcopy(self.V.reshape(self.env.shape))
         V_shaped[V_shaped == 0] = np.nan
         if vmin == 'auto':
             print('Auto vmin selected...')
             vmin = np.nanmin(V_shaped)
             print('Auto vmin determined to be', vmin,'...')
-        res = sns.heatmap(V_shaped, annot=annot, vmin=vmin, cmap=cmap, fmt='.2f', 
+        res = sns.heatmap(V_shaped, annot=annot, vmin=vmin, cmap=cmap, fmt=fmt, 
                     linewidths=0.1, linecolor='gray')
         for _, spine in res.spines.items():
             spine.set_visible(True)
@@ -45,12 +45,12 @@ class Learner(object):
             fig.savefig(save_path)
         else:
             plt.show()
+        plt.cla()
+        plt.close()
 
-    def visualise_policy(self):
-        fig, ax = plt.subplots()
-        im = ax.imshow(self.V.reshape(-1, self.env.shape[1]))
-        for state in self.env.states:
-            loc = self.env._to_location(state)
+    def visualise_policy(self, fmt='', save_path=None):
+        labels = self.recover_simple_policy()
+        self.plot_value(annot=labels, fmt=fmt, save_path=save_path)
 
     # def _init_grid(self):
     #     grid = Image.new('RGB', (60*self.env.shape[0], 60*self.env.shape[1]), (255, 255, 255))
