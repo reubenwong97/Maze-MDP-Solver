@@ -1,11 +1,26 @@
 import numpy as np
 from learner.learner import Learner
 from copy import deepcopy
+import os
 
 class ValueIterationLearner(Learner):
     def __init__(self, env):
         super(ValueIterationLearner, self).__init__(env)
         self.name = "Value Iteration"
+        self.vis_dir = os.path.join(self.vis_dir, 'value_iteration')
+    
+    def q_greedify_policy(self, s, gamma):
+        Q_values = []
+        for a in self.env.actions:
+            q_value = 0
+            for next_state, probability in self.env.transitions(s, a):
+                next_location = self.env._to_location(next_state)
+                reward = self.env.get_reward(next_location)
+                q_value += probability * (reward + gamma * self.V[next_state])
+            Q_values.append(q_value)
+        one_hot = np.zeros(self.env.n_actions)
+        one_hot[np.argmax(Q_values)] = 1.0
+        self.pi[s] = one_hot
 
     def bellman_optimality_update(self, s, gamma, V):
         # these are not actually q values
@@ -28,8 +43,10 @@ class ValueIterationLearner(Learner):
         i = 0
         while True:
             V_old = deepcopy(self.V)
-            if i % 50 == 0:
+            if (i % 50 == 0 or i == 1) and i != 0:
                 print('On iteration', i)
+                self.plot_value(save_path=os.path.join(self.vis_dir, 'value_iteration_utilities_iter_{}'.format(i)),
+                            it=i)
             delta = 0 # for stopping threshold theta
             for s in self.env.learnable_states:
                 v = V_old[s]
@@ -38,6 +55,7 @@ class ValueIterationLearner(Learner):
             i += 1
             if delta < theta:
                 print('Converged within theta margin at iteration', i)
+                self.plot_value(save_path=os.path.join(self.vis_dir, 'value_iteration_utilities_iter_final'), it=i)
                 break
         for s in self.env.states:
             if s in self.env.learnable_states:

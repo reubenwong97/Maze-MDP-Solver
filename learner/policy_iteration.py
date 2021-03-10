@@ -1,6 +1,7 @@
 import numpy as np
 from learner.learner import Learner
 from copy import deepcopy
+import os
 
 class PolicyIterationLearner(Learner):
     def __init__(self, env):
@@ -15,6 +16,7 @@ class PolicyIterationLearner(Learner):
         # init an all up policy for PolicyIteration
         self.pi = np.zeros((np.prod(self.env.shape), self.env.n_actions))
         self.pi[:, 0] = 1
+        self.vis_dir = os.path.join(self.vis_dir, 'policy_iteration')
 
     ######################################### RL Update, not used here ################################
     # def bellman_update(self, s, gamma, V):                                                          #
@@ -97,5 +99,8 @@ class PolicyIterationLearner(Learner):
         policy_stable = False
         while not policy_stable:
             self.policy_evaluation(gamma, theta)
+            self.plot_value(it=i+1, save_path=os.path.join(self.vis_dir, 'policy_iteration_utilities_evaluation_{}'.format(i+1)))
             policy_stable = self.policy_improvement()
+            self.visualise_policy(save_path=os.path.join(self.vis_dir, 'policy_iteration_policy_evaluation_{}'.format(i+1)),
+                it=i+1)
             i += 1
