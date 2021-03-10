@@ -16,15 +16,15 @@ class PolicyIterationLearner(Learner):
     def bellman_update(self, s, gamma, V):
         Q_values = []
         action_probs = []
+        location = self.env._to_location(s)
+        reward = self.env.get_reward(location)
         for a in self.env.actions:
             q_value = 0
             action_idx = self.action_dict[a]
             action_prob = self.pi[s, action_idx]
             action_probs.append(action_prob)
             for next_state, probability in self.env.transitions(s, a):
-                next_location = self.env._to_location(next_state)
-                reward = self.env.get_reward(next_location)
-                q_value += probability * (reward + gamma * V[next_state])
+                q_value += reward + probability * (gamma * V[next_state])
             Q_values.append(q_value)
         Q_values = np.asarray(Q_values)
         action_probs = np.asarray(action_probs)
@@ -57,4 +57,6 @@ class PolicyIterationLearner(Learner):
                 self.pi[s] = np.zeros(self.env.n_actions)
 
     def policy_iteration(self, gamma, theta):
-        self.policy_evaluation(gamma, theta)
+        policy_stable = False
+        while not policy_stable:
+            self.policy_evaluation(gamma, theta)
