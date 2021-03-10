@@ -27,12 +27,17 @@ class Learner(object):
                     linewidths=0.1, linecolor='gray')
         for _, spine in res.spines.items():
             spine.set_visible(True)
+        plt.rcParams["axes.titlesize"] = 10
+        plt.rcParams['figure.figsize'] = 9, 7
         if not it:
-            plt.title("{}, gamma={}, theta={}".format(self.name, self.gamma, self.theta))
+            plt.title("{}, gamma={}, theta={}, difficulty={}".format(self.name, self.gamma, self.theta, 
+                self.env.difficulty))
         else:
-            plt.title("{}, gamma={}, theta={}, iter={}".format(self.name, self.gamma, self.theta, it))
+            plt.title("{}, gamma={}, theta={}, iter={}, difficulty={}".format(self.name, self.gamma, self.theta, 
+                it, self.env.difficulty))
         if save_path:
             fig = res.get_figure()
+            fig.tight_layout()
             fig.savefig(save_path)
         else:
             plt.show()

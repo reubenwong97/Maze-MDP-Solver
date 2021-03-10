@@ -1,11 +1,13 @@
 import numpy as np
 import os
+
+from numpy.lib.function_base import diff
 from env.tiles import TileFactory
 
 class Maze(object):
-    def __init__(self, maze_path='default'):
-        self.default_path = os.path.join(os.getcwd(), 'env/mazes/basic.txt')
-        self.maze_path = maze_path if maze_path != 'default' else self.default_path
+    def __init__(self, difficulty='default'):
+        self.difficulty = difficulty
+        self.maze_path = os.path.join(os.getcwd(), 'env/mazes/{}.txt'.format(difficulty))
         self.maze_template = np.genfromtxt(self.maze_path, delimiter=',', dtype=np.uint8)
         self.shape = self.maze_template.shape
         self.factory = TileFactory()
@@ -19,11 +21,12 @@ class Maze(object):
         self._build_maze()
 
     def _to_state(self, location):
-        return location[0] * self.shape[0] + location[1]
+        return location[0] * self.shape[1] + location[1]
 
     def _to_location(self, state):
-        row = state // self.shape[0]
-        col = state - row * self.shape[1]
+        row = state // self.shape[1]
+        # col = state - row * self.shape[1]
+        col = state % self.shape[1]
 
         return (row, col)
 

@@ -7,16 +7,14 @@ class ValueIterationLearner(Learner):
     def __init__(self, env):
         super(ValueIterationLearner, self).__init__(env)
         self.name = "Value Iteration"
-        self.vis_dir = os.path.join(self.vis_dir, 'value_iteration')
+        self.vis_dir = os.path.join(self.vis_dir, 'value_iteration', self.env.difficulty)
     
     def q_greedify_policy(self, s, gamma):
         Q_values = []
         for a in self.env.actions:
             q_value = 0
             for next_state, probability in self.env.transitions(s, a):
-                next_location = self.env._to_location(next_state)
-                reward = self.env.get_reward(next_location)
-                q_value += probability * (reward + gamma * self.V[next_state])
+                q_value += probability * (gamma * self.V[next_state])
             Q_values.append(q_value)
         one_hot = np.zeros(self.env.n_actions)
         one_hot[np.argmax(Q_values)] = 1.0

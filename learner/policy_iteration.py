@@ -16,7 +16,7 @@ class PolicyIterationLearner(Learner):
         # init an all up policy for PolicyIteration
         self.pi = np.zeros((np.prod(self.env.shape), self.env.n_actions))
         self.pi[:, 0] = 1
-        self.vis_dir = os.path.join(self.vis_dir, 'policy_iteration')
+        self.vis_dir = os.path.join(self.vis_dir, 'policy_iteration', self.env.difficulty)
 
     ######################################### RL Update, not used here ################################
     # def bellman_update(self, s, gamma, V):                                                          #
