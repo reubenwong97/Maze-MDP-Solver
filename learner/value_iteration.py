@@ -12,10 +12,11 @@ class ValueIterationLearner(Learner):
         location = self.env._to_location(s)
         for a in self.env.actions:
             q_value = 0
+            # following IA equation, reward is for R(s) not R(s_prime)
+            reward = self.env.get_reward(location)
             for next_state, probability in self.env.transitions(s, a):
-                next_location = self.env._to_location(next_state)
-                reward = self.env.get_reward(next_location)
-                q_value += probability * (reward + gamma * V[next_state])
+                # reward also pulled outside of probability
+                q_value += reward + probability * (gamma * V[next_state])
             Q_values.append(q_value)
         self.V[s] = max(Q_values)
 
@@ -35,9 +36,7 @@ class ValueIterationLearner(Learner):
                 delta = max(delta, abs(v - self.V[s]))
             i += 1
             if delta < theta:
-                print('Delta', delta)
-                print(s)
-                print('Ended at iteration', i)
+                print('Converged within theta margin at iteration', i)
                 break
         for s in self.env.states:
             if s in self.env.learnable_states:

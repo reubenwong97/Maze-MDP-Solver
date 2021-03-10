@@ -28,9 +28,13 @@ class Learner(object):
         one_hot[np.argmax(Q_values)] = 1.0
         self.pi[s] = one_hot
 
-    def plot_value(self, annot=True, vmin=85, cmap='YlGnBu', save_path=None):
+    def plot_value(self, annot=True, vmin='auto', cmap='YlGnBu', save_path=None):
         V_shaped = deepcopy(self.V.reshape(self.env.shape))
         V_shaped[V_shaped == 0] = np.nan
+        if vmin == 'auto':
+            print('Auto vmin selected...')
+            vmin = np.nanmin(V_shaped)
+            print('Auto vmin determined to be', vmin,'...')
         res = sns.heatmap(V_shaped, annot=annot, vmin=vmin, cmap=cmap, fmt='.2f', 
                     linewidths=0.1, linecolor='gray')
         for _, spine in res.spines.items():
