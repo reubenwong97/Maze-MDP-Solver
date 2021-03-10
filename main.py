@@ -2,7 +2,6 @@ from env.maze import Maze
 from learner.value_iteration import ValueIterationLearner
 from learner.policy_iteration import PolicyIterationLearner
 import numpy as np
-from sacred import Experiment
 import argparse
 
 parser = argparse.ArgumentParser()
