@@ -4,6 +4,6 @@ Mazes are implemented as numpy matrices of tiles. Tile objects hold all informat
 ## Custom Maze
 Currently, there are 2 mazes provided here under `env/mazes/`, namely a default maze and a hard maze. The first step to implementing a custom maze is to generate a text file of your own and place it there in the directory. Next, you will need to implement the behaviour of any new tiles you have created. Do this in the `env/tiles.py` file. Be sure to update the `TileFactory`class so that it is able to correctly produce your tile.
 
-Lastly, you will need to implement your own transitions.
+Lastly, you will need to implement your own transition function in the `Maze` class.
 ## Solvers
 Two solvers are provided here, and you can see how to use them in `main.py`.
