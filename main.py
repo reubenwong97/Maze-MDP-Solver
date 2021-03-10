@@ -3,27 +3,23 @@ from learner.value_iteration import ValueIterationLearner
 from learner.policy_iteration import PolicyIterationLearner
 import numpy as np
 from sacred import Experiment
+import argparse
 
-ex = Experiment('maze_mdp')
-@ex.config
-def cfg():
-    difficulty = 'default'
-    gamma = 0.99
-    theta = 0.01
+parser = argparse.ArgumentParser()
+parser.add_argument('--difficulty', default='default')
+parser.add_argument('--gamma', default=0.99)
+parser.add_argument('--theta', default=0.01)
 
-@ex.main
-def run(difficulty, gamma, theta):
-    env = Maze(difficulty)
+args = parser.parse_args()
 
-    learner = ValueIterationLearner(env=env)
-    learner.value_iteration(gamma, theta)
-    learner.plot_value(save_path='visualisations/value_iteration_values_{}.png'.format(env.difficulty))
-    learner.visualise_policy(save_path='visualisations/value_iteration_policy_{}.png'.format(env.difficulty))
+env = Maze(args.difficulty)
 
-    learner = PolicyIterationLearner(env=env)
-    learner.policy_iteration(gamma, theta)
-    learner.plot_value(save_path='visualisations/policy_iteration_utilities_{}.png'.format(env.difficulty))
-    learner.visualise_policy(save_path='visualisations/policy_iteration_policy_{}.png'.format(env.difficulty))
+learner = ValueIterationLearner(env=env)
+learner.value_iteration(args.gamma, args.theta)
+learner.plot_value(save_path='visualisations/value_iteration_values_{}.png'.format(env.difficulty))
+learner.visualise_policy(save_path='visualisations/value_iteration_policy_{}.png'.format(env.difficulty))
 
-if __name__ == '__main__':
-    ex.run_commandline()
+learner = PolicyIterationLearner(env=env)
+learner.policy_iteration(args.gamma, args.theta)
+learner.plot_value(save_path='visualisations/policy_iteration_utilities_{}.png'.format(env.difficulty))
+learner.visualise_policy(save_path='visualisations/policy_iteration_policy_{}.png'.format(env.difficulty))
