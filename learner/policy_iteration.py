@@ -41,8 +41,8 @@ class PolicyIterationLearner(Learner):
         action = self.env.actions[np.argmax(self.pi[s])]
         q_value = 0
         for next_state, probability in self.env.transitions(s, action):
-            q_value += reward + probability * (gamma * V[next_state])
-        self.V[s] = q_value
+            q_value += probability * (gamma * V[next_state])
+        self.V[s] = reward + q_value
 
     def policy_evaluation(self, gamma, theta):
         i = 0
