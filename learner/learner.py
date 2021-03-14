@@ -4,6 +4,7 @@ import seaborn as sns
 from copy import deepcopy
 from PIL import Image, ImageDraw
 import os
+import json
 
 class Learner(object):
     def __init__(self, env) -> None:
@@ -15,6 +16,8 @@ class Learner(object):
        # all init| 0.25| 0.25  | 0.25 | 0.25
         self.pi = np.ones((np.prod(self.env.shape), self.env.n_actions)) / self.env.n_actions
         self.vis_dir = os.path.join(os.getcwd(), 'visualisations')
+        self.value_history = {}
+
 
     def plot_value(self, annot=True, vmin='auto', cmap='YlGnBu', fmt='.2f', it=None, save_path=None):
         V_shaped = deepcopy(self.V.reshape(self.env.shape))
@@ -65,3 +68,9 @@ class Learner(object):
             new_pi.append(action)
         
         return np.array(new_pi).reshape(self.env.shape)
+
+    def save_value_history(self, save_dir=None, name=None):
+        save_path = os.path.join(os.getcwd(), 'results', name)
+        with open(save_path, 'w') as file:
+            json.dump(self.value_history, file, indent=4)
+        print('Histories saved to {}'.format(save_path))

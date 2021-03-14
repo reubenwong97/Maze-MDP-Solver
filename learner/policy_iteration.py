@@ -2,6 +2,8 @@ import numpy as np
 from learner.learner import Learner
 from copy import deepcopy
 import os
+import json
+import matplotlib.pyplot as plt
 
 class PolicyIterationLearner(Learner):
     def __init__(self, env):
@@ -46,7 +48,7 @@ class PolicyIterationLearner(Learner):
             q_value += probability * (gamma * V[next_state])
         self.V[s] = reward + q_value
 
-    def policy_evaluation(self, gamma, theta):
+    def policy_evaluation(self, gamma, theta, count):
         i = 0
         while True:
             V_old = deepcopy(self.V)
@@ -57,6 +59,7 @@ class PolicyIterationLearner(Learner):
                 v = V_old[s] # cache value for comparison between iterations
                 self.modified_bellman_update(s, gamma, V_old)
                 delta = max(delta, abs(v - self.V[s]))
+            self.value_history[count].update({i: self.V.tolist()})
             i += 1
             if delta < theta:
                 # print('Converged within theta margin at iteration', i)
@@ -98,9 +101,47 @@ class PolicyIterationLearner(Learner):
         self.theta = theta
         policy_stable = False
         while not policy_stable:
-            self.policy_evaluation(gamma, theta)
+            self.value_history[i] = {}
+            self.policy_evaluation(gamma, theta, count=i)
             self.plot_value(it=i+1, save_path=os.path.join(self.vis_dir, 'policy_iteration_utilities_evaluation_{}'.format(i+1)))
             policy_stable = self.policy_improvement()
             self.visualise_policy(save_path=os.path.join(self.vis_dir, 'policy_iteration_policy_evaluation_{}'.format(i+1)),
                 it=i+1)
             i += 1
+
+    def plot_histories(self, results_path=None):
+        save_path = os.path.join(os.getcwd(), 'visualisations', 'policy_iteration', 'policy_iteration_line_plot.png')
+        results_path = os.path.join(os.getcwd(), 'results', 'policy_iteration.json') if results_path == None else results_path
+        
+        with open(results_path, 'r') as file:
+            histories = json.load(file)
+
+        fig = plt.figure()
+        ax = plt.axes()
+
+        for policy_iteration_count in histories.keys():
+            data = []
+            eval_label = '_eval_{}'.format(str([policy_iteration_count]))
+            eval_iter_data = histories[policy_iteration_count]
+            for iter_data in eval_iter_data.values():
+                iter_data = np.asarray(iter_data)
+                data.append(iter_data)
+            data = np.asarray(data)
+
+            # plotting
+            ax.plot(data[:, 0], label='(0, 0)'+eval_label)
+            ax.plot(data[:, 30], label='(5, 0)'+eval_label)
+            ax.plot(data[:, 35], label='(5, 5)'+eval_label)
+
+        ax.legend()
+        ax.set_title('Plot of Utilities for Select States against Iterations')
+        ax.set_ylabel('Utilities')
+        ax.set_xlabel('Iterations')
+        fig.savefig(save_path)
+
+        # close plotting
+        plt.cla()
+        plt.close()
+
+    def save_value_history(self, save_dir=None, name='policy_iteration.json'):
+        super().save_value_history(save_dir=save_dir, name=name)
