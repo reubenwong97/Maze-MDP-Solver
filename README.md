@@ -7,3 +7,5 @@ Currently, there are 2 mazes provided here under `env/mazes/`, namely a default 
 Lastly, you will need to implement your own transition function in the `Maze` class.
 ## Solvers
 Two solvers are provided here, and you can see how to use them in `main.py`.
+## Technical Report
+Please see the included technical report for a detailed introduction on the topic.
