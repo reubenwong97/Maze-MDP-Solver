@@ -8,4 +8,4 @@ Lastly, you will need to implement your own transition function in the `Maze` cl
 ## Solvers
 Two solvers are provided here, and you can see how to use them in `main.py`.
 ## Technical Report
-Please see the included technical report for a detailed introduction on the topic.
+Please see the included [technical report](https://github.com/reubenwong97/small_maze_mdp_solver/blob/master/MDP%20Solver%20Technical%20Report.pdf) for a detailed introduction on the topic.
